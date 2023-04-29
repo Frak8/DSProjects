@@ -26,7 +26,7 @@ main(int argc, char *argv[])
 #ifndef RSM
   lock_server ls;
   rpcs server(atoi(argv[1]));
-  server.reg(lock_protocol::stat, &ls, &lock_server::stat);
+  server.reg(lock_protocol::stat, &ls, &lock_server::lock_server_grant_lock);
 #endif
 
 

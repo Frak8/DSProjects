@@ -15,7 +15,7 @@ class lock_server {
   int nacquire;
 
  public:
-  lock_server();
+  lock_protocol::status lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &);
   ~lock_server() {};
   lock_protocol::status stat(int clt, lock_protocol::lockid_t lid, int &);
 };
