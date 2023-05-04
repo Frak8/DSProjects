@@ -9,14 +9,17 @@
 #include <vector>
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 
 std::string dst;
 lock_client *lc;
+pthread_mutex_t lock;
 
 int
 main(int argc, char *argv[])
 {
   int r;
+  pthread_mutex_init(&lock, NULL);
 
   if(argc != 2){
     fprintf(stderr, "Usage: %s [host:]port\n", argv[0]);
@@ -25,6 +28,6 @@ main(int argc, char *argv[])
 
   dst = argv[1];
   lc = new lock_client(dst);
-  r = lc->acquire(1);
+  r = lc->acquire(1, &lock);
   printf ("stat returned %d\n", r);
 }

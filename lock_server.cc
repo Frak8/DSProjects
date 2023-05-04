@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 /*
 lock_server::lock_server():
@@ -14,10 +15,11 @@ lock_server::lock_server():
 */
 
 lock_protocol::status
-lock_server::lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &r) {
+lock_server::lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &r, pthread_mutex_t &lock) {
+  pthread_mutex_lock(&lock);
   lock_protocol::status ret = lock_protocol::OK;
   printf("stat request from lock server %d\n", clt);
-  r = nacquire;
+  pthread_mutex_unlock(&lock);
   return ret;	
 }
 

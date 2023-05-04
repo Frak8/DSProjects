@@ -8,6 +8,7 @@
 #include "lock_protocol.h"
 #include "lock_client.h"
 #include "rpc.h"
+#include <pthread.h>
 
 class lock_server {
 
@@ -15,7 +16,7 @@ class lock_server {
   int nacquire;
 
  public:
-  lock_protocol::status lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &);
+  lock_protocol::status lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &, pthread_mutex_t &lock);
   ~lock_server() {};
   lock_protocol::status stat(int clt, lock_protocol::lockid_t lid, int &);
 };

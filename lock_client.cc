@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <stdio.h>
+#include <pthread.h>
 
 lock_client::lock_client(std::string dst)
 {
@@ -28,10 +29,10 @@ lock_client::stat(lock_protocol::lockid_t lid)
 }
 
 lock_protocol::status
-lock_client::acquire(lock_protocol::lockid_t lid)
+lock_client::acquire(lock_protocol::lockid_t lid, pthread_mutex_t &lock)
 {
   int r;
-  int ret = cl->call(lock_protocol::stat, cl->id(), lid, r);
+  int ret = cl->call(lock_protocol::stat, cl->id(), lid, r, &lock);
   assert (ret == lock_protocol::OK);
   return r;
 }
