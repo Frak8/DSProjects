@@ -2,6 +2,7 @@
 
 #include "lock_server.h"
 #include <sstream>
+#include <list>
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -10,6 +11,7 @@
 bool lock_available = true;
 int lock_holder_id;
 pthread_mutex_t lock;
+std::list<int> locks;
 
 lock_server::lock_server():
   nacquire (0)
@@ -26,9 +28,26 @@ lock_protocol::status
 lock_server::lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &r) {
   pthread_mutex_lock(&lock);
 
+    for(int i : locks) {
+      printf("Lock %d\n", lid);
+      if(i == lid) {
+        printf("Lock is held %d\n", lid);
+        lock_available = false;
+      }
+    }    
+
   if(lock_available) {
-    lock_available = false;
-    lock_holder_id = lid;
+    printf("Lock available %d\n", lid);
+    //lock_available = false;
+    lock_holder_id = clt;
+
+    locks.push_front(lid);
+
+    /* 
+    for(int i : locks) {
+      printf("Lock %d\n", i);
+    }
+    */
 
     lock_protocol::status ret = lock_protocol::OK;
      
@@ -50,16 +69,28 @@ lock_protocol::status
 lock_server::lock_server_release_lock(int clt, lock_protocol::lockid_t lid, int &r) {
   pthread_mutex_lock(&lock);
 
+   /*	
+   for(int i : locks) {
+     if(i == lid) {
+       printf("Lock released %d\n", lid);
+       locks.remove(i);
+       //lock_available = true;
+     }
+   }     
+   */
+  lock_protocol::status ret = lock_protocol::OK;
+  pthread_mutex_unlock(&lock);
+
+  return ret;
+
+  /*
   if(!lock_available) {
-    if(lock_holder_id == lid) {
-      lock_available = true;
-      lock_holder_id = -111111;	
-      lock_protocol::status ret = lock_protocol::OK;
-      printf("Lock released %d\n", clt);
+    //lock_available = true;	
+    lock_protocol::status ret = lock_protocol::OK;
+    printf("Lock released %d\n", clt);
      
-      pthread_mutex_unlock(&lock);
-      return ret;
-    }
+    pthread_mutex_unlock(&lock);
+    return ret;
   }
   else {
     lock_protocol::status ret = lock_protocol::OK;
@@ -67,6 +98,7 @@ lock_server::lock_server_release_lock(int clt, lock_protocol::lockid_t lid, int 
 
     return ret;
   }
+  */
 }
 
 lock_protocol::status

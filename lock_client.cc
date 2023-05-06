@@ -9,8 +9,11 @@
 #include <stdio.h>
 #include <pthread.h>
 
+pthread_mutex_t lock;
+
 lock_client::lock_client(std::string dst)
 {
+  pthread_mutex_init(&lock, NULL);
   sockaddr_in dstsock;
   make_sockaddr(dst.c_str(), &dstsock);
   cl = new rpcc(dstsock);
@@ -31,18 +34,22 @@ lock_client::stat(lock_protocol::lockid_t lid)
 lock_protocol::status
 lock_client::acquire(lock_protocol::lockid_t lid)
 {
+  pthread_mutex_lock(&lock);
   int r;
   int ret = cl->call(lock_protocol::acquire, cl->id(), lid, r);
   assert (ret == lock_protocol::OK);
+  pthread_mutex_unlock(&lock);
   return r;
 }
 
 lock_protocol::status
 lock_client::release(lock_protocol::lockid_t lid)
 {
+  pthread_mutex_lock(&lock);
   int r;
   int ret = cl->call(lock_protocol::release, cl->id(), lid, r);
   assert (ret == lock_protocol::OK);
+  pthread_mutex_unlock(&lock);
   return r;
 }
 
