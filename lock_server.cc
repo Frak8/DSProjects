@@ -26,13 +26,13 @@ lock_protocol::status
 lock_server::lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &r) {
   pthread_mutex_lock(&lock);
 
-	if(locks.find(lid) != locks.end()) {
+	if(locks.find(lid) == locks.end()) {
 		lock_protocol::status ret = lock_protocol::OK;
 
 		locks.insert(std::make_pair(lid, true));
      
   	pthread_mutex_unlock(&lock);
-  	printf("Lock granted %d\n", clt);
+  	printf("Lock granted %d\n", lid);
 
 		return ret;
 	}
@@ -40,7 +40,7 @@ lock_server::lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &r
 		lock_protocol::status ret = lock_protocol::RETRY;
      
   	pthread_mutex_unlock(&lock);
-  	printf("Lock request denied %d\n", clt);
+  	printf("Lock request denied %d\n", lid);
 
 		return ret;
 	}
@@ -56,7 +56,7 @@ lock_server::lock_server_release_lock(int clt, lock_protocol::lockid_t lid, int 
 		locks.erase(locks.find(lid));
      
   	pthread_mutex_unlock(&lock);
-  	printf("Lock released %d\n", clt);
+  	printf("Lock released %d\n", lid);
 
 		return ret;
 	}
@@ -64,7 +64,7 @@ lock_server::lock_server_release_lock(int clt, lock_protocol::lockid_t lid, int 
 		lock_protocol::status ret = lock_protocol::RETRY;
      
   	pthread_mutex_unlock(&lock);
-  	printf("Lock is unheld %d\n", clt);
+  	printf("Lock is unheld %d\n", lid);
 
 		return ret;
 	}
