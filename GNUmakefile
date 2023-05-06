@@ -22,8 +22,8 @@ LDLIBS = -lpthread
 endif
 LDLIBS += $(shell test -f `gcc -print-file-name=librt.so` && echo -lrt)
 LDLIBS += $(shell test -f `gcc -print-file-name=libdl.so` && echo -ldl)
-CC = g++
-CXX = g++
+CC = g++ -std=c++11
+CXX = g++ -std=c++11
 
 lab:  lab1
 lab1: rpc/rpctest lock_server lock_tester lock_demo

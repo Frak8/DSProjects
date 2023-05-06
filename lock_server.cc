@@ -2,16 +2,14 @@
 
 #include "lock_server.h"
 #include <sstream>
-#include <list>
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <map>
 
-bool lock_available = true;
-int lock_holder_id;
 pthread_mutex_t lock;
-std::list<int> locks;
+std::map<int, bool> locks;
 
 lock_server::lock_server():
   nacquire (0)
@@ -28,77 +26,48 @@ lock_protocol::status
 lock_server::lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &r) {
   pthread_mutex_lock(&lock);
 
-    for(int i : locks) {
-      printf("Lock %d\n", lid);
-      if(i == lid) {
-        printf("Lock is held %d\n", lid);
-        lock_available = false;
-      }
-    }    
+	if(locks.find(lid) != locks.end()) {
+		lock_protocol::status ret = lock_protocol::OK;
 
-  if(lock_available) {
-    printf("Lock available %d\n", lid);
-    //lock_available = false;
-    lock_holder_id = clt;
-
-    locks.push_front(lid);
-
-    /* 
-    for(int i : locks) {
-      printf("Lock %d\n", i);
-    }
-    */
-
-    lock_protocol::status ret = lock_protocol::OK;
+		locks.insert(std::make_pair(lid, true));
      
-    pthread_mutex_unlock(&lock);
-    printf("Lock granted %d\n", clt);
+  	pthread_mutex_unlock(&lock);
+  	printf("Lock granted %d\n", clt);
 
-    return ret;	
-  }
-  else {
-    lock_protocol::status ret = lock_protocol::RETRY;
-    pthread_mutex_unlock(&lock);
-    printf("Lock request denied %d\n", clt);
+		return ret;
+	}
+	else {
+		lock_protocol::status ret = lock_protocol::RETRY;
+     
+  	pthread_mutex_unlock(&lock);
+  	printf("Lock request denied %d\n", clt);
 
-    return ret;
-  }	
+		return ret;
+	}
 }
 
 lock_protocol::status
 lock_server::lock_server_release_lock(int clt, lock_protocol::lockid_t lid, int &r) {
   pthread_mutex_lock(&lock);
 
-   /*	
-   for(int i : locks) {
-     if(i == lid) {
-       printf("Lock released %d\n", lid);
-       locks.remove(i);
-       //lock_available = true;
-     }
-   }     
-   */
-  lock_protocol::status ret = lock_protocol::OK;
-  pthread_mutex_unlock(&lock);
+	if(locks.find(lid) != locks.end()) {
+		lock_protocol::status ret = lock_protocol::OK;
 
-  return ret;
-
-  /*
-  if(!lock_available) {
-    //lock_available = true;	
-    lock_protocol::status ret = lock_protocol::OK;
-    printf("Lock released %d\n", clt);
+		locks.erase(locks.find(lid));
      
-    pthread_mutex_unlock(&lock);
-    return ret;
-  }
-  else {
-    lock_protocol::status ret = lock_protocol::OK;
-    pthread_mutex_unlock(&lock);
+  	pthread_mutex_unlock(&lock);
+  	printf("Lock released %d\n", clt);
 
-    return ret;
-  }
-  */
+		return ret;
+	}
+	else {
+		lock_protocol::status ret = lock_protocol::RETRY;
+     
+  	pthread_mutex_unlock(&lock);
+  	printf("Lock is unheld %d\n", clt);
+
+		return ret;
+	}
 }
 
 lock_protocol::status
