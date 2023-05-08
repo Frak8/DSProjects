@@ -26,8 +26,12 @@ main(int argc, char *argv[])
 
   dst = argv[1];
   lc = new lock_client(dst);
+  r = lc->acquire(2);	
   r = lc->acquire(2);
-  r = lc->release(2);	
+  r = lc->release(2);
   r = lc->acquire(2);
+  r = lc->acquire(3);
+  r = lc->acquire(4);
+  r = lc->acquire(4);		
   printf ("stat returned %d\n", r);
 }

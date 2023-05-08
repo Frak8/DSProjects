@@ -204,4 +204,6 @@ lock_server.o: lock_server.cc /usr/include/stdc-predef.h lock_server.h \
  /usr/include/c++/5/bits/stl_numeric.h /usr/include/string.h \
  rpc/connection.h /usr/include/arpa/inet.h rpc/pollmgr.h \
  /usr/include/x86_64-linux-gnu/sys/epoll.h \
- /usr/include/x86_64-linux-gnu/bits/epoll.h lock_client.h
+ /usr/include/x86_64-linux-gnu/bits/epoll.h lock_client.h \
+ /usr/include/c++/5/chrono /usr/include/c++/5/ratio \
+ /usr/include/c++/5/ctime /usr/include/c++/5/bits/parse_numbers.h
