@@ -38,14 +38,11 @@ lock_server::~lock_server() {
 
 lock_protocol::status
 lock_server::lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &r) {
-	//pthread_mutex_lock(&lock);
-
 	if(locks.find(lid) != locks.end()) {
 		pthread_mutex_lock(&locks.find(lid)->second.mutex);
 		locks.find(lid)->second.locked = true;
 		lock_protocol::status ret = lock_protocol::OK;
 
-		//pthread_mutex_unlock(&lock);
 		printf("Lock granted %d\n", lid);
 
 		return ret;
@@ -53,7 +50,6 @@ lock_server::lock_server_grant_lock(int clt, lock_protocol::lockid_t lid, int &r
 
 	lock_protocol::status ret = lock_protocol::RETRY;
 
-	//pthread_mutex_unlock(&lock);
 	printf("Lock denied %d\n", lid);
 
 	return ret;
